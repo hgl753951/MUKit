@@ -24,7 +24,9 @@ typedef NS_ENUM(NSUInteger, MUGradientType) {
  @param imageSize 需要的图片尺寸
  
  */
-+ (UIImage *)imageFromGradientColorMu:(NSArray*)colors gradientType:(MUGradientType)gradientType imageSize:(CGSize)imageSize;
++ (UIImage *)imageFromGradientColorMu:(NSArray*)colors
+                         gradientType:(MUGradientType)gradientType
+                            imageSize:(CGSize)imageSize;
 
 /**
  通过单一颜色生成图片
@@ -42,7 +44,8 @@ typedef NS_ENUM(NSUInteger, MUGradientType) {
  @param anotherImage 需要比较的图片
  
  */
-+ (BOOL)imageEqualToImageMu:(UIImage*)image anotherImage:(UIImage *)anotherImage;
++ (BOOL)imageEqualToImageMu:(UIImage*)image
+               anotherImage:(UIImage *)anotherImage;
 
 
 /**
@@ -52,7 +55,8 @@ typedef NS_ENUM(NSUInteger, MUGradientType) {
  @param imageSize 图片尺寸
  
  */
-+ (UIImage *)QRImageForStringMu:(NSString *)string imageSize:(CGSize)imageSize;
++ (UIImage *)QRImageForStringMu:(NSString *)string
+                      imageSize:(CGSize)imageSize;
 
 
 /**
@@ -63,7 +67,9 @@ typedef NS_ENUM(NSUInteger, MUGradientType) {
  @param imageSize 图片尺寸
  
  */
-+ (UIImage *)QRImageForStringMu:(NSString *)string logoImage:(UIImage *)logoImage imageSize:(CGSize)imageSize;
++ (UIImage *)QRImageForStringMu:(NSString *)string
+                      logoImage:(UIImage *)logoImage
+                      imageSize:(CGSize)imageSize;
 
 
 /**
@@ -75,7 +81,10 @@ typedef NS_ENUM(NSUInteger, MUGradientType) {
  @param color 二维码图片的颜色，默认为黑色
  
  */
-+ (UIImage *)QRImageForStringMu:(NSString *)string imageSize:(CGSize)imageSize logoImage:(UIImage *)logoImage color:(UIColor *)color;
++ (UIImage *)QRImageForStringMu:(NSString *)string
+                      imageSize:(CGSize)imageSize
+                      logoImage:(UIImage *)logoImage
+                          color:(UIColor *)color;
 
 /**
  Compress a UIImage to the specified ratio
@@ -85,7 +94,8 @@ typedef NS_ENUM(NSUInteger, MUGradientType) {
  
  */
 + (UIImage *)compressImage:(UIImage *)image
-             compressRatio:(CGFloat)ratio;
+             compressRatio:(CGFloat)ratio NS_DEPRECATED_IOS(5_0, 8_0, "Use -compressImageWithRatio: instead");
+- (UIImage *)compressImageWithRatio:(CGFloat)ratio;
 /**
  Compress a UIImage to the specified ratio with a max ratio compression
  
@@ -96,6 +106,8 @@ typedef NS_ENUM(NSUInteger, MUGradientType) {
  */
 + (UIImage *)compressImage:(UIImage *)image
              compressRatio:(CGFloat)ratio
+          maxCompressRatio:(CGFloat)maxRatio NS_DEPRECATED_IOS(5_0, 8_0, "Use -compressImageWithRatio:maxCompressRatio: instead");
+- (UIImage *)compressImageWithRatio:(CGFloat)ratio
           maxCompressRatio:(CGFloat)maxRatio;
 
 /**
@@ -120,30 +132,45 @@ typedef NS_ENUM(NSUInteger, MUGradientType) {
                    compressRatio:(CGFloat)ratio
                 maxCompressRatio:(CGFloat)maxRatio;
 
-//图片透明度
-+ (UIImage *)imageByApplyingAlpha:(CGFloat)alpha  image:(UIImage*)image;
+//设置图片透明度
++ (UIImage *)imageByApplyingAlpha:(CGFloat)alpha
+                            image:(UIImage*)image NS_DEPRECATED_IOS(5_0, 8_0, "Use -imageByApplyingAlpha: instead");
+
+- (UIImage *)imageByApplyingAlpha:(CGFloat)alpha;
+
 
 //图片拉伸
 /**
  @param insets 距离图片上下左右的边距为不被拉伸的像素
  */
 
-+(UIImage*)resizeWithImage:(UIImage*)image
-                edgeInsets:(UIEdgeInsets)insets;
++ (UIImage*)resizeWithImage:(UIImage*)image
+                edgeInsets:(UIEdgeInsets)insets NS_DEPRECATED_IOS(5_0, 8_0, "Use -resizeWithEdgeInsets: instead");
+- (UIImage*)resizeWithEdgeInsets:(UIEdgeInsets)insets;
 
 
-//压缩图片
-+(UIImage *)imageCompressForSize:(UIImage *)sourceImage
-                      targetSize:(CGSize)size;
+//压缩图片到指定size
++ (UIImage *)imageCompressForSize:(UIImage *)sourceImage
+                       targetSize:(CGSize)size NS_DEPRECATED_IOS(5_0, 8_0, "Use -compressImageForSize: instead");
+- (UIImage *)compressImageForSize:(CGSize)size;
+
 
 /** 将图片旋转degrees角度 */
 - (UIImage *)imageRotatedByDegrees:(CGFloat)degrees;
 
+
+//压缩图片到指定大小(k)
+- (NSData *)compressWithMaxLength:(NSUInteger)maxLength ;
+- (UIImage *)compressImageWithMaxLength:(NSUInteger)maxLength;
+
 /** 获取图片MD5 */
-+ (NSString *)imageMD5:(UIImage *)image;
++ (NSString *)imageMD5:(UIImage *)image  NS_DEPRECATED_IOS(5_0, 8_0, "Use -getImageMD5 instead");
+- (NSString *)getImageMD5;
 
 /**base64 */
-+ (NSString *)imageBase64:(UIImage *)image;
++ (NSString *)imageBase64:(UIImage *)image NS_DEPRECATED_IOS(5_0, 8_0, "Use -getImageBase64 instead");
+- (NSString *)getImageBase64;
+
 
 + (UIImage *)animatedGIFWithData:(NSData *)data;
 @end

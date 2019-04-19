@@ -12,8 +12,8 @@
 #import "MUCardView.h"
 #import "MUCardLayout.h"
 #import "MUPhotoPreviewController.h"
-#import "UIImageView+MUImageCache.h"
-#import "MUImageCacheManager.h"
+//#import "UIImageView+MUImageCache.h"
+//#import "MUImageCacheManager.h"
 
 @interface MUKitDemoViewCarouselController ()
 @property(nonatomic, strong)MUCarouselView *carouselView1;
@@ -48,7 +48,7 @@
     controller.toolbar.items = @[leftItem,rightItem];
 
     controller.configuredImageBlock = ^(UIImageView *imageView, NSUInteger index, id model ,NSString **caption) {
-        [imageView setImageURL:model placeHolderImageName:@"1024_s"];
+//        [imageView setImageURL:model placeHolderImageName:@"1024_s"];
 
 *caption = @"sekfjsdgkldllgldhttp://pic34.nipic.com/20131028/2455348_171218804000_2.jpghttp://pic34.nipic.com/20131028/2455348_171218804000_2.jpghttp://pic34.nipic.com/20131028/2455348_171218804000_2.jpg";
     };

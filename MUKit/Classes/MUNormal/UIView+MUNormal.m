@@ -469,7 +469,7 @@
     CGPoint orginal = tempView.frame.origin;
     tempView.frame = CGRectMake(orginal.x, orginal.y, [UIScreen mainScreen].bounds.size.width, size.height + 12.);
     [tempView setNeedsLayout];
-     CFRelease((__bridge CFTypeRef)(self));
+    CFRelease((__bridge CFTypeRef)(self));
 }
 
 - (CGFloat)leftMu {
@@ -1313,15 +1313,15 @@
     int minute = timeInt / 60;
     //    int second = timeInt;
     if (year > 0) {
-        return [NSString stringWithFormat:@"%d年以前",year];
+        return [NSString stringWithFormat:@"%d年前",year];
     }else if(month > 0){
-        return [NSString stringWithFormat:@"%d个月以前",month];
+        return [NSString stringWithFormat:@"%d个月前",month];
     }else if(day > 0){
-        return [NSString stringWithFormat:@"%d天以前",day];
+        return [NSString stringWithFormat:@"%d天前",day];
     }else if(hour > 0){
-        return [NSString stringWithFormat:@"%d小时以前",hour];
+        return [NSString stringWithFormat:@"%d小时前",hour];
     }else if(minute > 0){
-        return [NSString stringWithFormat:@"%d分钟以前",minute];
+        return [NSString stringWithFormat:@"%d分钟前",minute];
     }else{
         return [NSString stringWithFormat:@"刚刚"];
     }
@@ -1804,3 +1804,36 @@ static dispatch_source_t timer;
 }
 @end
 
+@interface UITextView (placeHolderString)
+
+@property (nonatomic,strong ) UILabel *interPlaceHolderLabel;
+
+@end
+@implementation UITextView (placeHolderString)
+
+- (void)setInterPlaceHolderLabel:(UILabel *)interPlaceHolderLabel{
+    objc_setAssociatedObject(self, @selector(interPlaceHolderLabel), interPlaceHolderLabel, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (UILabel *)interPlaceHolderLabel{
+    
+    UILabel *label = objc_getAssociatedObject(self, @selector(interPlaceHolderLabel));
+    if (!label) {
+        UILabel *placeHolderStr = [[UILabel alloc] init];
+        placeHolderStr.numberOfLines = 0;
+        placeHolderStr.textColor = [UIColor lightGrayColor];
+        [placeHolderStr sizeToFit];
+        placeHolderStr.font = [UIFont systemFontOfSize:14.];
+        [self addSubview:placeHolderStr];
+        [self setValue:placeHolderStr forKey:@"_placeholderLabel"];
+        self.interPlaceHolderLabel = placeHolderStr;
+        label = placeHolderStr;
+    }
+    
+    return label;
+}
+
+- (UILabel *)placeHolderLabel{
+    return self.interPlaceHolderLabel;
+}
+@end

@@ -291,65 +291,34 @@ static UIControlEvents allEventControls = -1;
     
 }
 #pragma mark- touch events handler
--(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
+- (void)MUTouchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
     
-    CGPoint location = [[[event allTouches] anyObject] locationInView:[UIApplication sharedApplication].keyWindow];
-    CGRect statusBarFrame = [UIApplication sharedApplication].statusBarFrame;
-    if (CGRectContainsPoint(statusBarFrame, location)) {//判断是否点击了状态栏
-        [super touchesBegan:touches withEvent:event];
-        return;
-    }
-    if ([self isKindOfClass:NSClassFromString(@"PUPhotoView")]) {
-        [super touchesBegan:touches withEvent:event];
-        return;
-    }
-    if (!self.clickSignalName) {
+    
+    if (self.clickSignalName.length <= 0) {
         NSString *name = [self dymaicSignalName];
-        if (name.length == 0) {
-            [super touchesBegan:touches withEvent:event];
-        }else{
+        if (name.length > 0) {
+            self.clickSignalName = name;
+            UITouch *touch = [touches anyObject];
             
-            if ([self isKindOfClass:[UITableViewCell class]] || [self isKindOfClass:[UICollectionView class]]) {
-                [super touchesBegan:touches withEvent:event];
-            }else{
-                self.clickSignalName = name;
+            CGPoint point = [touch locationInView:self];
+            
+            self.trigger = [self pointInside:point withEvent:event];
+            
+            if (self.isTrigger && ![self isKindOfClass:[UIControl class]]) {
+                
+                [self sendSignal];
             }
             
         }
-        
     }else{
-        
-        if (self.clickSignalName.length == 0) {
-            [super touchesBegan:touches withEvent:event];
-        }
-    }
-}
-
--(void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
-    
-    CGPoint location = [[[event allTouches] anyObject] locationInView:[UIApplication sharedApplication].keyWindow];
-    CGRect statusBarFrame = [UIApplication sharedApplication].statusBarFrame;
-    if (CGRectContainsPoint(statusBarFrame, location)) {//判断是否点击了状态栏
-        [super touchesEnded:touches withEvent:event];
-        return;
-    }
-    if (self.clickSignalName.length>0) {
-        
         UITouch *touch = [touches anyObject];
         
         CGPoint point = [touch locationInView:self];
         
         self.trigger = [self pointInside:point withEvent:event];
-        
-        if (self.isTrigger) {
-            
+        if (self.isTrigger && ![self isKindOfClass:[UIControl class]]) {
             [self sendSignal];
         }
-        
-        
-        
-    }else{
-        [super touchesEnded:touches withEvent:event];
     }
     
     
@@ -548,43 +517,6 @@ static BOOL forceRefrshMU = NO;//强制刷新标志
     }
 }
 
-#pragma mark -hitTest
-
-- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
-    if (!self.isUserInteractionEnabled || self.isHidden || self.alpha <= 0.01) {
-        return nil;
-    }
-    if ([self pointInside:point withEvent:event]) {
-        for (UIView *subview in [self.subviews reverseObjectEnumerator]) {
-            CGPoint convertedPoint = [subview convertPoint:point fromView:self];
-            UIView *hitTestView = [subview hitTest:convertedPoint withEvent:event];
-            if (hitTestView) {
-                
-                if ([subview isKindOfClass:[UISwitch class]]&&subview.clickSignalName.length == 0) {//处理UISwitch
-                    NSString *name = [subview dymaicSignalName];
-                    if (name.length > 0) {
-                        subview.clickSignalName = name;
-                    }
-                    return hitTestView;
-                }
-                if ([hitTestView isKindOfClass:[UIControl class]]) {//处理其它UIControl类
-                    
-                    if (hitTestView.clickSignalName.length == 0) {
-                        NSString *name = [hitTestView dymaicSignalName];
-                        if (name.length > 0) {
-                            hitTestView.clickSignalName = name;
-                        }
-                    }
-                }
-                
-                return hitTestView;
-            }
-        }
-        return self;
-    }
-    return nil;
-}
-
 #pragma mark -configured allEventControls
 -(UIControlEvents)eventControlWithInstance:(UIView *)instance{
     if (![instance isKindOfClass:[UIButton class]]) {
@@ -609,7 +541,7 @@ static BOOL forceRefrshMU = NO;//强制刷新标志
     
     if (!signalName || !target) {
         
-        NSLog(@"The method can not be perform if the signalName or target is nil.");
+        NSLog(@"%@-%@ The method can not be perform if the signalName or target is nil.",NSStringFromClass([target class]),signalName);
         return;
     }
     signalName = [havedSignal stringByAppendingString:signalName];
@@ -626,7 +558,7 @@ static BOOL forceRefrshMU = NO;//强制刷新标志
         action(target,selector,object);
     }else{
         
-        NSLog(@"The target is not found.The selector will not be perform!");
+        NSLog(@"%@-%@ The method can not be perform if the signalName or target is nil.",NSStringFromClass([target class]),signalName);
     }
     
 }
@@ -642,12 +574,12 @@ void MUHookMethodCellSubDecrption(const char * originalClassName ,SEL originalSE
     
     Class originalClass = objc_getClass(originalClassName);//get a class through a string
     if (originalClass == 0) {
-        NSLog(@"I can't find a class through a 'originalClassName'");
+        NSLog(@"%@-%@ I can't find a class through a 'originalClassName",NSStringFromClass(originalClass),NSStringFromSelector(newSEL));
         return;
     }
     Class newClass     = objc_getClass(newClassName);
     if (newClass == 0) {
-        NSLog(@"I can't find a class through a 'newClassName'");
+        NSLog(@"%@-%@ I can't find a class through a 'originalClassName",NSStringFromClass(originalClass),NSStringFromSelector(newSEL));
         return;
     }
     class_addMethod(originalClass, newSEL, class_getMethodImplementation(newClass, newSEL), nil);//if newSEL not found in originalClass,it will auto add a method to this class;

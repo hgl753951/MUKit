@@ -20,6 +20,12 @@
 @interface MUTableViewManager : NSObject<UITableViewDelegate,UITableViewDataSource>
 
 /**
+ 在某些场景下如果需要重新计算行高只需在对应的indexPath的model数据里，添加如下字段并把值置为1即可，刷新完之后系统会自动置值为0
+ */
+//@property (nonatomic,copy) NSString * excludeDynamicRowHeight;
+/**
+ 
+ 
  Unavailable. Please use initWithTableView: method
  */
 - (instancetype)init NS_UNAVAILABLE;
@@ -53,11 +59,16 @@
  @param keyPath 如果是分组模型，则传入相应的keyPath
  */
 - (instancetype)initWithTableView:(UITableView *)tableView
-               registerCellClass:(NSString *)className
-                      subKeyPath:(NSString *)keyPath;
+                registerCellClass:(NSString *)className
+                       subKeyPath:(NSString *)keyPath;
 
 /**
-模型数组，这个参数会根据下拉刷新或者上拉刷新的状态判断是否自动拼接数据，适合分页情况下使用
+ 所有的数组模型，如果使用的是modelArray，则它的数据可能只是分页数据中的一段
+ */
+@property (readonly) NSArray *dataArray;
+
+/**
+ 模型数组，这个参数会根据下拉刷新或者上拉刷新的状态判断是否自动拼接数据，适合分页情况下使用
  */
 @property (nonatomic ,strong)NSArray                     *modelArray;
 
@@ -67,6 +78,11 @@
  模型数组，无论上拉刷新抑或下拉刷新都不会拼接数据
  */
 @property (nonatomic ,strong)NSArray                     *modelAllArray;//model's array
+
+/**
+ 存储不需要缓存高度对应的indexPath
+ */
+@property (nonatomic ,strong)NSArray                     *indexPathArray;//model's array
 
 
 

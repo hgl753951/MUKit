@@ -21,8 +21,9 @@
 #import "MUCarouselView.h"
 #import "MUSharedManager.h"
 #import "MUPaperView.h"
-#import "UIImageView+MUImageCache.h"
+//#import "UIImageView+MUImageCache.h"
 #import "MUTextKitNode.h"
+#import "UIImageView+MUCache.h"
 
 #define weakify( x )  __weak __typeof__(x) __weak_##x##__ = x;
 #define normalize( x ) __typeof__(x) x = __weak_##x##__;
@@ -34,7 +35,10 @@
 //判断是否 Retina屏、设备是否iPhone 5、是否是iPad
 #define isRetina ([UIScreen instancesRespondToSelector:@selector(currentMode)] ? CGSizeEqualToSize(CGSizeMake(640, 960), [[UIScreen mainScreen] currentMode].size) : NO)
 
-/** 判断是否为iPhone */
+/** 判断是否为模拟器 */
+#define isSimulator (TARGET_IPHONE_SIMULATOR == 1 && TARGET_OS_IPHONE == 1)
+
+/** 判断是否为iPhocne */
 #define isiPhone (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
 
 /** 判断是否是iPad */
@@ -57,6 +61,12 @@
 
 /** 设备是否为iPhone X 分辨率373x812，像素1125x2436，@3x */
 #define iPhoneX ([UIScreen instancesRespondToSelector:@selector(currentMode)] ? CGSizeEqualToSize(CGSizeMake(1125, 2436), [[UIScreen mainScreen] currentMode].size) : NO)
+
+/** 设备是否为iPhone XR 分辨率373x812，像素1125x2436，@3x */
+#define iPhoneXR ([UIScreen instancesRespondToSelector:@selector(currentMode)] ? CGSizeEqualToSize(CGSizeMake(828, 1792), [[UIScreen mainScreen] currentMode].size) : NO)
+
+/** 设备是否为iPhone XR Max 分辨率x812，像素1125x2436，@3x */
+#define iPhoneXSMax ([UIScreen instancesRespondToSelector:@selector(currentMode)] ? CGSizeEqualToSize(CGSizeMake(1242, 2688), [[UIScreen mainScreen] currentMode].size) : NO)
 
 /** 应用商店版本号 */
 #define APP_SHORT_VERSION               [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]

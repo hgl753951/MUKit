@@ -8,8 +8,7 @@
 
 #import "MUNavigation.h"
 #import <objc/runtime.h>
-#import <ifaddrs.h>
-#import <arpa/inet.h>
+
 
 @interface UINavigationBar(MUNavigation)
 /** 设置当前 NavigationBar 背景图片*/
@@ -23,7 +22,7 @@
 @implementation UINavigationBar (MUNavigation)
 
 - (BOOL)statusBarNormal{
-     id object = objc_getAssociatedObject(self, @selector(statusBarNormal));
+    id object = objc_getAssociatedObject(self, @selector(statusBarNormal));
     return object?[object boolValue]:YES;
 }
 - (void)setStatusBarNormal:(BOOL)statusBarNormal {
@@ -87,16 +86,18 @@
         // add a image(nil color) to _UIBarBackground make it clear
         if (!self.backgroundImageView) {
             self.translucent = YES;
-          
+            
             CGRect statusBarFrame = [UIApplication sharedApplication].statusBarFrame;
             CGFloat statusBarHeight = statusBarFrame.size.height;
             CGFloat height = CGRectGetHeight(self.bounds) + CGRectGetHeight([UIApplication sharedApplication].statusBarFrame);
-            if (statusBarHeight > 20.) {
+            if (statusBarHeight == 40. ) {
                 height -= 20.;
+            }else if(statusBarHeight == 88.){
+                height -= 44.;
             }
             [self setBackgroundImage:[UIImage new] forBarMetrics:UIBarMetricsDefault];
             self.backgroundImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(self.bounds), height)];
-//            self.backgroundImageView.userInteractionEnabled = YES;
+            //            self.backgroundImageView.userInteractionEnabled = YES;
         }
         // _UIBarBackground is first subView for navigationBar
         /** iOS11下导航栏不显示问题 */
@@ -118,13 +119,15 @@
         if (!self.backgroundView) {
             self.translucent = YES;
             [self setBackgroundImage:[UIImage new] forBarMetrics:UIBarMetricsDefault];
- 
+            
             
             CGRect statusBarFrame = [UIApplication sharedApplication].statusBarFrame;
             CGFloat statusBarHeight = statusBarFrame.size.height;
             CGFloat height = CGRectGetHeight(self.bounds) + CGRectGetHeight([UIApplication sharedApplication].statusBarFrame);
-            if (statusBarHeight > 20.) {
+            if (statusBarHeight == 40. ) {
                 height -= 20.;
+            }else if(statusBarHeight == 88.){
+                height -= 44.;
             }
             self.backgroundView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(self.bounds),height)];
             self.backgroundView.userInteractionEnabled = NO;
@@ -180,9 +183,14 @@ void MUHookMethodSubDecrption(const char * originalClassName ,SEL originalSEL ,c
 @end
 @implementation UIViewController (MUNavigation)
 
-- (void)dealloc{
+- (void)mu_Dealloc{
+#if DEBUG
+    NSLog(@"%@ ---------------  dealloc",NSStringFromClass([self class]));
+#endif
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidChangeStatusBarFrameNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"enterForeground" object:nil];
+    
+    [self mu_Dealloc];
 }
 
 +(void)load{
@@ -195,6 +203,8 @@ void MUHookMethodSubDecrption(const char * originalClassName ,SEL originalSEL ,c
         [self muHookMethodViewController:NSStringFromClass([self class]) orignalSEL:@selector(viewDidDisappear:) newClassName:NSStringFromClass([self class]) newSEL: @selector(mu_viewDidDisappear:)];
         [self muHookMethodViewController:NSStringFromClass([self class]) orignalSEL:@selector(viewDidLayoutSubviews) newClassName:NSStringFromClass([self class]) newSEL: @selector(mu_viewDidLayoutSubviews)];
         [self muHookMethodViewController:NSStringFromClass([self class]) orignalSEL:@selector(viewDidLoad) newClassName:NSStringFromClass([self class]) newSEL: @selector(mu_viewDidLoad)];
+        
+        [self muHookMethodViewController:NSStringFromClass([self class]) orignalSEL:NSSelectorFromString(@"dealloc") newClassName:NSStringFromClass([self class]) newSEL: @selector(mu_Dealloc)];
     });
 }
 +(void)muHookMethodViewController:(NSString *)originalClassName orignalSEL:(SEL)originalSEL newClassName:(NSString *)newClassName newSEL:(SEL)newSEL{
@@ -224,7 +234,7 @@ void MUHookMethodSubDecrption(const char * originalClassName ,SEL originalSEL ,c
     if (statusBarHeight == 20.0) {
         self.navigationController.navigationBar.statusBarNormal = YES;
     } else {
-         self.navigationController.navigationBar.statusBarNormal = NO;
+        self.navigationController.navigationBar.statusBarNormal = NO;
     }
 }
 
@@ -232,36 +242,39 @@ void MUHookMethodSubDecrption(const char * originalClassName ,SEL originalSEL ,c
     
     CGRect statusBarFrame = [UIApplication sharedApplication].statusBarFrame;
     CGFloat statusBarHeight = statusBarFrame.size.height;
-    if (statusBarHeight == 20.0) {
-          self.navigationController.navigationBar.statusBarNormal = YES;
+    if (statusBarHeight == 20.0 || statusBarHeight == 44.0) {
+        self.navigationController.navigationBar.statusBarNormal = YES;
         CGFloat height = CGRectGetHeight( self.navigationController.navigationBar.bounds) + CGRectGetHeight([UIApplication sharedApplication].statusBarFrame);
         CGRect frame =  self.navigationController.navigationBar.backgroundImageView.frame;
         frame.size.height = height;
         self.navigationController.navigationBar.backgroundImageView.frame = frame;
         self.navigationController.navigationBar.backgroundView.frame = frame;
         
-        //        CGRect viewFrame = self.view.frame;
-        //        viewFrame.size.height += 20;
-        //        self.view.frame = viewFrame;
     } else {
-          self.navigationController.navigationBar.statusBarNormal = NO;
-        CGFloat height = CGRectGetHeight( self.navigationController.navigationBar.bounds) + CGRectGetHeight([UIApplication sharedApplication].statusBarFrame) - 20;
+        self.navigationController.navigationBar.statusBarNormal = NO;
+        CGFloat height = CGRectGetHeight( self.navigationController.navigationBar.bounds) + CGRectGetHeight([UIApplication sharedApplication].statusBarFrame);
+        if (statusBarHeight == 40. ) {
+            height -= 20.;
+        }else if(statusBarHeight == 88.){
+            height -= 44.;
+        }
         CGRect frame =  self.navigationController.navigationBar.backgroundImageView.frame;
         frame.size.height = height;
         self.navigationController.navigationBar.backgroundImageView.frame = frame;
         self.navigationController.navigationBar.backgroundView.frame = frame;
         
-        //        CGRect viewFrame = self.view.frame;
-        //        viewFrame.size.height += 20;
-        //        self.view.frame = viewFrame;
     }
-  
+    
 }
 
 - (void)mu_viewWillAppear:(BOOL)animated {
     
     [self mu_viewWillAppear:animated];
     if ([self canUpdateNavigationBar]) {//判断当前控制器有无导航控制器
+        if ([NSStringFromClass([self.navigationController class]) isEqualToString:@"MUNavigationController"]) {
+            
+            [self.navigationController setValue:@(self.interactivePopGestureRecognizerMU) forKey:@"interactivePopGestureRecognizerMU"];
+        }
         self.navigationController.navigationBar.userInteractionEnabled = NO;
         self.navigationController.navigationBar.barStyle  = self.barStyleMu;
         [self.navigationController setNavigationBarHidden:self.navigationBarHiddenMu animated:YES];
@@ -288,6 +301,9 @@ void MUHookMethodSubDecrption(const char * originalClassName ,SEL originalSEL ,c
     
     [self mu_viewWillDisappear:animated];
     if ([self canUpdateNavigationBar]) {//判断当前控制器有无导航控制器
+        if ([NSStringFromClass([self.navigationController class]) isEqualToString:@"MUNavigationController"]) {
+            [self.navigationController setValue:@(NO) forKey:@"interactivePopGestureRecognizerMU"];
+        }
         if (self.navigationBarTranslationY > 0) {
             self.navigationController.navigationBar.transform = CGAffineTransformIdentity;
             self.navigationBarTranslationY = 0;
@@ -396,7 +412,7 @@ void MUHookMethodSubDecrption(const char * originalClassName ,SEL originalSEL ,c
 }
 - (BOOL)canUpdateNavigationBar {
     // 如果当前有导航栏//且没有手动设置隐藏导航栏
-    if (self.navigationController&&[NSStringFromClass([self.navigationController class]) isEqualToString:NSStringFromClass([UINavigationController class])]) {//如果有自定义的导航栏则过滤掉
+    if (self.navigationController && ([NSStringFromClass([self.navigationController class]) isEqualToString:NSStringFromClass([UINavigationController class])] || [NSStringFromClass([self.navigationController class]) isEqualToString:@"MUNavigationController"])) {//如果有自定义的导航栏则过滤掉
         return YES;
     }
     return NO;
@@ -665,6 +681,13 @@ void MUHookMethodSubDecrption(const char * originalClassName ,SEL originalSEL ,c
     id object = objc_getAssociatedObject(self, @selector(navigationBarTranslucentMu));
     return object?[object boolValue]:NO;
 }
+- (BOOL)interactivePopGestureRecognizerMU{
+    id object = objc_getAssociatedObject(self, @selector(interactivePopGestureRecognizerMU));
+    return object?[object boolValue]:NO;
+}
+- (void)setInteractivePopGestureRecognizerMU:(BOOL)interactivePopGestureRecognizerMU{
+    objc_setAssociatedObject(self, @selector(interactivePopGestureRecognizerMU), @(interactivePopGestureRecognizerMU), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
 //透明度变化
 -(void)setNavigationBarAlphaMu:(CGFloat)navigationBarAlphaMu{
     
@@ -705,6 +728,7 @@ void MUHookMethodSubDecrption(const char * originalClassName ,SEL originalSEL ,c
 -(void (^)(UIBarButtonItem *))rightItemByTapped{
     return objc_getAssociatedObject(self, @selector(rightItemByTapped));
 }
+
 
 #pragma mark -设置左右Item
 -(void)addLeftItemWithTitle:(NSString *)title itemByTapped:(void (^)(UIBarButtonItem *))itemByTapped{

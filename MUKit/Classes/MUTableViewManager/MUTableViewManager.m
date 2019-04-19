@@ -121,6 +121,33 @@ static NSString * const rowHeight = @"rowHeight";
     _scaleCenterX = screenWidth/2.;
     
 }
+- (MUTipsView *)tipsView{
+    if (!_tipView) {
+        UIViewController *tempController = nil;
+        if (!self.weakViewController) {
+            self.weakViewController = [self getViewControllerFromCurrentView:_tableView];
+        }
+        if (tempController.navigationController) {
+            
+            if (self.retainTableView.tableHeaderView) {
+                _tipView             = [[MUTipsView alloc]initWithFrame:CGRectMake(0, CGRectGetHeight(self.retainTableView.tableHeaderView.frame), CGRectGetWidth(self.retainTableView.frame), CGRectGetHeight(self.retainTableView.bounds) - 64. - CGRectGetHeight(self.retainTableView.tableHeaderView.frame))];
+            }else{
+                
+                _tipView             = [[MUTipsView alloc]initWithFrame:CGRectMake(0, 0, CGRectGetWidth(self.retainTableView.frame), CGRectGetHeight(self.retainTableView.bounds) - 64.)];
+            }
+        }else{
+            if (self.retainTableView.tableHeaderView) {
+                _tipView             = [[MUTipsView alloc]initWithFrame:CGRectMake(0, CGRectGetHeight(self.retainTableView.tableHeaderView.frame), CGRectGetWidth(self.retainTableView.frame), CGRectGetHeight(self.retainTableView.bounds) - CGRectGetHeight(self.retainTableView.tableHeaderView.frame))];
+            }else{
+                _tipView             = [[MUTipsView alloc]initWithFrame:CGRectMake(0, 0, CGRectGetWidth(_tableView.frame), CGRectGetHeight(_tableView.bounds))];
+            }
+            
+        }
+        _tipView.userInteractionEnabled = NO;
+        [_tableView addSubview:_tipView];
+    }
+    return _tipView;
+}
 -(instancetype)initWithTableView:(UITableView *)tableView{//只需要刷新
     if (self = [super init]) {
         _tableView           = tableView;
@@ -151,17 +178,7 @@ static NSString * const rowHeight = @"rowHeight";
     _tableView           = tableView;
     _retainTableView     = _tableView;
     tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    UIViewController *tempController = nil;
-    if (!self.weakViewController) {
-        self.weakViewController = [self getViewControllerFromCurrentView:_tableView];
-    }
-    if (tempController.navigationController) {
-        _tipView             = [[MUTipsView alloc]initWithFrame:CGRectMake(0, 0, CGRectGetWidth(tableView.frame), CGRectGetHeight(tableView.bounds) - 64.)];
-    }else{
-        _tipView             = [[MUTipsView alloc]initWithFrame:CGRectMake(0, 0, CGRectGetWidth(tableView.frame), CGRectGetHeight(tableView.bounds))];
-    }
-    [_tableView addSubview:_tipView];
-    _tipsView            = _tipView;
+    
     _tableView.estimatedRowHeight = 88.;
     _tableView.estimatedSectionFooterHeight = 0;
     _tableView.estimatedSectionHeaderHeight = 0;
@@ -230,10 +247,14 @@ static NSString * const rowHeight = @"rowHeight";
     [model addProperty:object propertyName:rowHeight type:MUAddedPropertyTypeAssign];
 }
 
+- (NSArray *)dataArray{
+    return [self.innerModelArray copy];
+}
 - (void)clearData{
     [_tableView addSubview:self.tipsView];
     [_tableView sendSubviewToBack:self.tipsView];
     self.innerModelArray = [NSMutableArray array];
+    _modelArray = nil;
     [_tableView reloadData];
 }
 -(void)setModelAllArray:(NSArray *)modelAllArray{
@@ -474,11 +495,19 @@ static NSString * const rowHeight = @"rowHeight";
             object  = self.innerModelArray[indexPath.row];
         }
     }
+    BOOL isEqual = NO;
+    if (self.indexPathArray.count > 0) {
+        for (NSIndexPath *ignoreIndexPath in self.indexPathArray) {
+           isEqual = ([ignoreIndexPath compare:indexPath] == NSOrderedSame) ? YES : NO;
+            if (isEqual) {
+                break ;
+            }
+        }
+    }
     CGFloat height  = [self.dynamicProperty getValueFromObject:object name:rowHeight];
-    if (height > 0) {
+    if (height > 0 && !isEqual) {
         return height;
     }
-    
     height = _rowHeight;
     CGFloat tempHeight = height;
     UITableViewCell *cell = nil;
@@ -490,8 +519,12 @@ static NSString * const rowHeight = @"rowHeight";
             height = [self dynamicRowHeight:cell tableView:tableView];//计算cell的动态行高
         }
     }
-    
-    [self.dynamicProperty setValueToObject:object name:rowHeight value:height];
+    if (isEqual) {
+        [self.dynamicProperty setValueToObject:object name:rowHeight value:0];
+        
+    }else{
+         [self.dynamicProperty setValueToObject:object name:rowHeight value:height];
+    }
     return height;
 }
 

@@ -16,8 +16,16 @@ it, simply add the following line to your Podfile:
 pod "MUKit"
 ```
 
-#   下载整个案例耗时会有点长，如果你只是对某一部分感兴趣，可以联系我，提供单独案例源码。
+#   MUSignal去掉重写的touchesBegan: withEvent:||touchesEnded: withEvent:||hitTest: withEvent:方法以避免和其它框架冲突
 
+# MUImageCache2.0 
+```
+1.优化接口
+2.修复时不时闪退问题
+3.去掉Icon接口，实用价值太低
+4.简化架构
+5.提供渐进显示图片接口
+```
 #   核心【MUSignal、MUTableViewManager、MUNavigation】
 
 #   【[简书](https://www.jianshu.com/u/7709ed94216c)】
@@ -94,35 +102,67 @@ controller.toolbar.items = @[leftItem,rightItem];
 ```
 ![image](https://github.com/jeykit/MUKit/blob/master/Example/MUKit/Gif/PhotoPreview.gif )
 
-###     MUImageCache  -图片缓存的另一种解决方案
+###     MUImageCache 2.0 -图片缓存的另一种解决方案，参考[FlyImage]
 ```
-0.降低图片下载时占用内存过大(具体可对比SDWebImage下载图片时的内存使用情况)
-1.可将多张小图解码后存储到同一张大图上，在同屏渲染多图时，效率极高；
-2.支持mmap内存映射，高效的I/O操作，减少一次文件拷贝操作
-3.减少内存占用；
-支持Byte Alignment字节对其，渲染过程中，避免执行CA::Render::copy_image内存操作；
-5.新增图片下载管理
-6.新增GIF解码
-7.优化之前的接口
-8.支持图片绘制圆角，并避免调用(  layer.cornerRadius;
+2.0 优化
+1.优化接口
+2.修复时不时闪退问题
+3.去掉Icon接口，实用价值太低
+4.简化架构
+5.提供渐进显示图片接口
+6.支持mmap内存映射，高效的I/O操作，减少一次文件拷贝操作
+7.减少内存占用；
+支持Byte Alignment字节对其，渲染过程中，避免执行CA::Render::copy_image内存操作
+8.优化图片下载管理
+9.支持GIF解码
+10.支持图片绘制圆角，并避免调用(  layer.cornerRadius;
 layer.masksToBounds)
+11.降低图片下载时占用内存过大(具体可对比SDWebImage下载图片时的内存使用情况)
 ```
 使用方式
 ```
+/**
+*
+*
+*  @param imageURLString originalURL
+*/
+- (void)setImageURLString:(NSString*)imageURLString;
 
-//小图标
-- (void)setIconURL:(NSString*)iconURL;
+/**
+*  Download images and render them with the below order:
+*  1. imageURLString
+*  2. placeHolderImageName
+*
+*  These images will be saved into [FlyImageCache shareInstance]
+*/
+- (void)setImageURLString:(NSString*)imageURLString
+placeHolderImageName:(NSString*)imageName;
 
-- (void)setIconURL:(NSString*)iconURL placeHolderImageName:(NSString*)imageName;
 
-- (void)setIconURL:(NSString*)iconURL placeHolderImageName:(NSString*)imageName cornerRadius:(CGFloat)cornerRadius;
+/**
+*  Download images and render them with the below order:
+*  1. imageURLString
+*  2. placeHolderImageName
+*  3. cornerRadius
+*
+*  These images will be saved into [MUImageCache shareInstance]
+*/
+- (void)setImageURLString:(NSString*)imageURLString
+placeHolderImageName:(NSString*)imageName
+cornerRadius:(CGFloat)cornerRadius;
 
-//图片
-- (void)setImageURL:(NSString*)url;
+/**
+*  Download images and render them with the below order:
+*  1. imageURLString
+*  2. placeHolderImageName
+*  3. cornerRadius
+*  4. 渐进显示图片，适合大图显示
+*  These images will be saved into [MUImageCache shareInstance]
+*/
+- (void)setProgressImageURLString:(NSString*)imageURLString
+placeHolderImageName:(NSString*)imageName
+cornerRadius:(CGFloat)cornerRadius;
 
-- (void)setImageURL:(NSString*)imageURL placeHolderImageName:(NSString*)imageName;
-
-- (void)setImageURL:(NSString*)imageURL placeHolderImageName:(NSString*)imageName cornerRadius:(CGFloat)cornerRadius;
 ```
 ![image](https://github.com/jeykit/MUKit/blob/master/Example/MUKit/Gif/imageCache.gif )
 
@@ -234,11 +274,17 @@ self.navigationBarHiddenMu = YES;//隐藏
 self.statusBarStyleMu = UIStatusBarStyleDefault;//更改电池电量条样式
 }
 ```
+如果想使用类似京东、淘宝等APP全屏侧滑的导航方法只需初始化即可
+```
+   MUNavigationController *navigationController = [[MUNavigationController alloc]initWithRootViewController:[UIViewController new]];
+```
 具体用法请参考源码中的MUNavigation(导航框架案例)
 
 ![image](https://github.com/jeykit/MUKit/blob/master/Example/MUKit/Gif/navigation_t.gif) ![image](https://github.com/jeykit/MUKit/blob/master/Example/MUKit/Gif/navigation_h.gif) ![image](https://github.com/jeykit/MUKit/blob/master/Example/MUKit/Gif/navigation_a.gif) 
 
 ![image](https://github.com/jeykit/MUKit/blob/master/Example/MUKit/Gif/navigation_x.gif) ![image](https://github.com/jeykit/MUKit/blob/master/Example/MUKit/Gif/navigation_s.gif)
+
+![image](https://github.com/jeykit/MUKit/blob/master/Example/MUKit/Gif/navigation_x.gif) ![image](https://github.com/jeykit/MUKit/blob/master/Example/MUKit/Gif/navigation.gif)
 ___
 
 ###     MUImagePickerManager-简单易用

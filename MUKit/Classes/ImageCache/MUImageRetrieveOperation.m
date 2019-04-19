@@ -23,18 +23,22 @@
 
 - (void)addBlock:(MUImageCacheRetrieveBlock)block
 {
-    if (_blocks == nil) {
-        _blocks = [NSMutableArray new];
+    if (!_blocks) {
+        _blocks = [NSMutableArray array];
     }
     if (block) {
-        [_blocks addObject:block];
+        if (_blocks) {
+            [_blocks addObject:block];
+        }
     }
 }
 
 - (void)executeWithImage:(UIImage*)image
 {
     for (MUImageCacheRetrieveBlock block in _blocks) {
-        block(self.name, image , self.filePath);
+        if (block) {
+            block(self.name, image , self.filePath);
+        }
     }
     [_blocks removeAllObjects];
 }
